@@ -1,0 +1,21 @@
+{
+    "time": {
+        "min": 0,
+        "max": 2
+    },
+    "objects": [{
+        "materials": {
+            "test": {
+                "color": {
+                    "r": 0.2,
+                    "g": 0.4,
+                    "b": 0.6
+                }
+            }
+        },
+
+        "elems": [
+
+        ]
+    }]
+}

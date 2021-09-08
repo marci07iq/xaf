@@ -1,0 +1,210 @@
+:root {
+    --slider-accent: #0ff;
+    --slider-select: #0cc;
+    --slider-passive: #444;
+    --slider-passive-select: #666;
+    --slider-control-height: 30px;
+    --slider-toggle-pad: 4px;
+    --slider-toggle-knob: calc(var(--slider-control-height) - 2*var(--slider-toggle-pad));
+}
+
+.slider-outer {
+    position: relative;
+    border: 1px solid green;
+    overflow: hidden;
+}
+
+.slider {
+    width: 100%;
+    bottom: 0px;
+    position: absolute;
+    pointer-events: auto;
+}
+
+.slider-progress-container {
+    width: 100%;
+    background: var(--slider-passive);
+    height: 5px;
+    transform: translate(0px, 2.5px);
+}
+
+.slider-progress-container:hover,
+.slider-progress-container.expand {
+    background: var(--slider-passive-select);
+    height: 10px;
+    transition: 100ms all ease;
+    transform: translate(0px, 5px);
+}
+
+.slider-progress-highlight {
+    background: var(--slider-accent);
+    height: 100%;
+    position: relative;
+}
+
+.slider-progress-container .slider-progress-knob {
+    height: 0px;
+    width: 0px;
+    background-color: var(--slider-accent);
+    border-radius: 50%;
+    display: inline-block;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    transform: translate(0px, -2.5px);
+}
+
+.slider-progress-container:hover .slider-progress-knob,
+.slider-progress-container.expand .slider-progress-knob {
+    height: 20px;
+    width: 20px;
+    transition: 100ms all ease;
+    transform: translate(10px, -5px);
+}
+
+.slider-control {
+    padding: 10px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+    column-count: 2;
+}
+
+.slider-control-item {
+    height: var(--slider-control-height);
+    line-height: var(--slider-control-height);
+}
+
+.slider-playbutton {
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    width: 0;
+    border-color: transparent transparent transparent var(--slider-accent);
+    transition: 100ms all ease;
+    cursor: pointer;
+    border-style: solid;
+    border-width: 15px 0 15px 25px;
+    padding: 0;
+}
+
+.slider-control-left {}
+
+.slider-playbutton.pause {
+    border-style: double;
+    border-width: 0px 0 0px 25px;
+}
+
+.slider-playbutton:hover {
+    border-color: transparent transparent transparent var(--slider-select);
+}
+
+.slider-control-right {
+    float: right;
+}
+
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: calc(2*var(--slider-toggle-knob) + 2*var(--slider-toggle-pad));
+    height: var(--slider-control-height);
+}
+
+
+/* Hide default HTML checkbox */
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+
+/* The slider */
+
+.toggle-line {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--slider-passive);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.toggle-line:before {
+    position: absolute;
+    content: "";
+    height: var(--slider-toggle-knob);
+    width: var(--slider-toggle-knob);
+    left: var(--slider-toggle-pad);
+    bottom: var(--slider-toggle-pad);
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:hover+.toggle-line {
+    background-color: var(--slider-passive-select);
+}
+
+input:checked+.toggle-line {
+    background-color: var(--slider-accent);
+}
+
+input:hover:checked+.toggle-line {
+    background-color: var(--slider-select);
+}
+
+input:checked+.toggle-line:before {
+    -webkit-transform: translateX(var(--slider-toggle-knob));
+    -ms-transform: translateX(var(--slider-toggle-knob));
+    transform: translateX(var(--slider-toggle-knob));
+}
+
+
+/* Rounded sliders */
+
+.toggle-line.round {
+    border-radius: 30px;
+}
+
+.toggle-line.round:before {
+    border-radius: 50%;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
