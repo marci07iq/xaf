@@ -49,6 +49,7 @@ export function init(config, sceneLoader) {
 
     Scene.startEngine(canvas)
         .then(ctx => {
+            BABYLON.OBJFileLoader.SKIP_MATERIALS = true;
             UI.GUI.init(ui_div, ctx.scene);
             return Scene.setupEnvironment(ctx);
         })

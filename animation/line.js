@@ -2,15 +2,16 @@ import { Element, ElementFactory } from './element.js';
 import * as Utils from '../utils/utils.js'
 
 export class LineElement extends Element {
-    constructor(parent, time) {
+    constructor(parent, time, radius) {
         super(parent, time);
+        this.radius = radius;
     }
 
     initMesh() {
         this.length = Utils.Geometry.pathLength(this.keyframes);
 
         let path = Utils.Geometry.createPath(this.keyframes, 1);
-        this.mesh1 = BABYLON.Mesh.CreateTube("tube", path, WIRE_RADIUS * MAGNET_SCALE, 16, null, BABYLON.CAP_ALL, this.magnet.scene, false);
+        this.mesh1 = BABYLON.Mesh.CreateTube("tube", path, this.radius, 16, null, BABYLON.CAP_ALL, this.parent.scene, false);
         this.mesh1.material = this.parent.material;
         this.mesh1.parent = this.parent.node;
         this.updateMesh();
@@ -34,7 +35,7 @@ export class LineElement extends Element {
             //Create temp
             if (this.local_progress > 0) {
                 let path = Utils.Geometry.createPath(this.keyframes, this.local_progress);
-                this.meshx = BABYLON.Mesh.CreateTube("tube", path, WIRE_RADIUS * MAGNET_SCALE, 16, null, BABYLON.CAP_ALL, this.magnet.scene, false);
+                this.meshx = BABYLON.Mesh.CreateTube("tube", path, this.radius, 16, null, BABYLON.CAP_ALL, this.parent.scene, false);
                 this.meshx.material = this.parent.material;
                 this.meshx.parent = this.parent.node;
             }
@@ -72,27 +73,29 @@ export class LineElement extends Element {
 };
 
 export class CurvedLineElement extends LineElement {
-    constructor(parent, time, filename) {
-        super(parent, time);
+    constructor(parent, time, radius, filename) {
+        super(parent, time, radius);
 
         this.filename = filename;
     }
 
     init() {
-        this.keyframes = Utils.Loader.loadKeyframes(filename);
+        return Utils.Loader.loadKeyframes(this.filename).then((keyframes) => {
+            this.keyframes = keyframes;
+            return this.initMesh();
+        });
 
-        return this.initMesh();
     }
 };
 
 ElementFactory.registerFactory("CurvedLineElement", (ctx, data) => {
-    let elem = new CurvedLineElement(ctx, data.time, data.filename);
+    let elem = new CurvedLineElement(ctx, data.time, data.radius, ctx.root_folder + data.filename);
     return elem.init();
 });
 
 export class BridgeLineElement extends LineElement {
-    constructor(parent, time, from_name, to_name) {
-        super(parent, time);
+    constructor(parent, time, radius, from_name, to_name) {
+        super(parent, time, radius);
 
         this.from_name = from_name;
         this.to_name = to_name;
@@ -100,8 +103,8 @@ export class BridgeLineElement extends LineElement {
 
     init() {
         return Promise.all([
-            Utils.Loader.loadKeyframes(filename),
-            Utils.Loader.loadKeyframes(filename)
+            Utils.Loader.loadKeyframes(this.from_name),
+            Utils.Loader.loadKeyframes(this.to_name)
         ]).then((values) => {
             this.keyframes = [
                 values[0][values[0].length - 1],
@@ -113,6 +116,6 @@ export class BridgeLineElement extends LineElement {
 };
 
 ElementFactory.registerFactory("BridgeLineElement", (ctx, data) => {
-    let elem = new BridgeLineElement(ctx, data.time, data.filename_f, data.filename_t);
+    let elem = new BridgeLineElement(ctx, data.time, data.radius, ctx.root_folder + data.filename_f, ctx.root_folder + data.filename_t);
     return elem.init();
 });

@@ -7,7 +7,7 @@ window.onload = () => {
         delayed: true,
         message: ["Hi"]
     }, (ctx) => {
-        return XAF.Animation.loadManifest(ctx, "manifest.json").then((animation) => {
+        return XAF.Animation.loadManifest(ctx, "manifest_oftct.json").then((animation) => {
             let slider_hwnd = XAF.UI.GUI.initSlider(
                 animation.time.min,
                 animation.time.max,

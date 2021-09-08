@@ -12,13 +12,14 @@ export class MeshElement extends Element {
     init() {
         return BABYLON.SceneLoader.ImportMeshAsync(
                 "",
+                "",
                 this.filename,
                 this.parent.scene)
             .then((newMeshes) => {
                 this.mesh = newMeshes.meshes[0];
                 this.mesh.material = this.parent.material;
                 this.mesh.parent = this.parent.node;
-                this.updateMesh();
+                this.update();
             });
     }
 
@@ -46,6 +47,6 @@ ElementFactory.registerFactory("MeshElement", (ctx, data) => {
     let motion = (data.motion != undefined) ?
         TransitionFactory.useFactory(data.motion.type, [data.motion]) :
         TransitionFactory.useFactory("TransitionStatic", [{}]);
-    let elem = new MeshElement(ctx, data.time, data.filename, motion);
+    let elem = new MeshElement(ctx, data.time, ctx.root_folder + data.filename, motion);
     return elem.init();
 });

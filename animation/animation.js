@@ -2,6 +2,8 @@ export * from './element.js';
 export * from './line.js';
 export * from './mesh.js';
 
+import { ElementFactory } from './element.js';
+
 import * as Utils from "../utils/utils.js";
 
 class AnimationObject {
@@ -22,6 +24,8 @@ export function loadManifest(ctx, src) {
         let json = JSON.parse(data);
 
         let time = json.time;
+
+        let root_folder = json.root_folder;
 
         //Load models
         return Promise.all(json.objects.map((object) => {
@@ -52,7 +56,8 @@ export function loadManifest(ctx, src) {
                 return ElementFactory.useFactory(e.type, [{
                     node: node,
                     material: materials[e.material].material,
-                    scene: ctx.scene
+                    scene: ctx.scene,
+                    root_folder: root_folder
                 }, e])
             })).then((elems) => {
                 return Promise.resolve(new AnimationObject(elems, materials));
