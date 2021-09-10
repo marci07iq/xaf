@@ -2,71 +2,36 @@ export * from './element.js';
 export * from './line.js';
 export * from './mesh.js';
 
-import { ElementFactory } from './element.js';
-
 import * as Utils from "../utils/utils.js";
+import { context } from '../world/world.js';
 
-class AnimationObject {
-    constructor(elems, materials) {
-        this.elems = elems;
-        this.materials = materials;
-    }
+export class AnimationObject {
+	constructor(node, elems, materials) {
+		this.node = node;
+		this.elems = elems;
+		this.materials = materials;
+		this.grabable = false;
+	}
 
-    setProgress(progress) {
-        this.elems.forEach((e) => {
-            e.setProgress(progress);
-        })
-    }
+	setProgress(progress) {
+		this.elems.forEach((e) => {
+			e.setProgress(progress);
+		})
+	}
+
+	setGrabable(grabable) {
+		this.grabable = grabable;
+
+		Utils.forEachDict(this.materials, (k, v) => {
+			v.mat.diffuseColor = this.grabable ? v.color_select : context.color;
+		});
+	}
+
+	onMotionControllerMove(position) {
+		setGrabable(this.mesh.getBoundingInfo().intersectsPoint(position));
+	}
+
+	onGrab(parent) {
+		
+	}
 };
-
-export function loadManifest(ctx, src) {
-    return Utils.Loader.loadTextfile(src).then((data) => {
-        let json = JSON.parse(data);
-
-        let time = json.time;
-
-        let root_folder = json.root_folder;
-
-        //Load models
-        return Promise.all(json.objects.map((object) => {
-            //Load materials
-            let materials = {};
-            Utils.forEachDict(object.materials, (k, v) => {
-                let mat = new BABYLON.StandardMaterial("", ctx.scene);
-
-                let color = new BABYLON.Color3(v.color.r, v.color.g, v.color.b);
-                let color_select =
-                    (v.color_select != undefined) ?
-                    new BABYLON.Color3(v.color_select.r, v.color_select.g, v.color_select.b) :
-                    color;
-
-                mat.alpha = 1.0;
-                mat.diffuseColor = color;
-                mat.backFaceCulling = false;
-                materials[k] = {
-                    material: mat,
-                    color: color,
-                    color_select: color_select
-                };
-            });
-
-            //Object
-            let node = new BABYLON.TransformNode();
-            return Promise.all(object.elems.map((e) => {
-                return ElementFactory.useFactory(e.type, [{
-                    node: node,
-                    material: materials[e.material].material,
-                    scene: ctx.scene,
-                    root_folder: root_folder
-                }, e])
-            })).then((elems) => {
-                return Promise.resolve(new AnimationObject(elems, materials));
-            });
-        })).then((objects) => {
-            return Promise.resolve({
-                objects: objects,
-                time: time
-            });
-        });
-    })
-}
