@@ -6,32 +6,38 @@ import * as Utils from "../utils/utils.js";
 import { context } from '../world/world.js';
 
 export class AnimationObject {
-	constructor(node, elems, materials) {
-		this.node = node;
-		this.elems = elems;
-		this.materials = materials;
-		this.grabable = false;
-	}
+    constructor(node, elems, materials) {
+        this.node = node;
+        this.elems = elems;
+        this.materials = materials;
+        this.grabable = false;
 
-	setProgress(progress) {
-		this.elems.forEach((e) => {
-			e.setProgress(progress);
-		})
-	}
+        this.follow = true;
+    }
 
-	setGrabable(grabable) {
-		this.grabable = grabable;
+    setProgress(progress) {
+        this.elems.forEach((e) => {
+            e.setProgress(progress);
+        });
 
-		Utils.forEachDict(this.materials, (k, v) => {
-			v.mat.diffuseColor = this.grabable ? v.color_select : context.color;
-		});
-	}
+        if (this.follow) {
 
-	onMotionControllerMove(position) {
-		setGrabable(this.mesh.getBoundingInfo().intersectsPoint(position));
-	}
+        }
+    }
 
-	onGrab(parent) {
-		
-	}
+    setGrabable(grabable) {
+        this.grabable = grabable;
+
+        Utils.forEachDict(this.materials, (k, v) => {
+            v.mat.diffuseColor = this.grabable ? v.color_select : context.color;
+        });
+    }
+
+    onMotionControllerMove(position) {
+        this.setGrabable(this.mesh.getBoundingInfo().intersectsPoint(position));
+    }
+
+    onGrab(parent) {
+        this.node.setParent(parent);
+    }
 };

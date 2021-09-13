@@ -1,98 +1,100 @@
 import * as UI from "../ui/ui.js";
 
 async function attachMotionController(ctx, controller) {
-	//Turn controller into motionController
-	controller.onMotionControllerInitObservable.add((motionController) => {
-		//Wait for mesh. Controller is fully loaded now
-		if (motionController.handedness == "right") {
-			motionController.onModelLoadedObservable.add((model) => {
-				let lastpos = undefined;
+    //Turn controller into motionController
+    controller.onMotionControllerInitObservable.add((motionController) => {
+        //Wait for mesh. Controller is fully loaded now
+        if (motionController.handedness == "right") {
+            motionController.onModelLoadedObservable.add((model) => {
+                let lastpos = undefined;
 
-				ctx.scene.registerBeforeRender(() => {
-					lastpos = controller.grip._position;
-					ctx.objects.forEach((obj) => {
-						obj.onMotionControllerMove(lastpos);
-					});
-				});
+                ctx.scene.registerBeforeRender(() => {
+                    lastpos = controller.grip._position;
+                    ctx.objects.forEach((obj) => {
+                        obj.onMotionControllerMove(lastpos);
+                    });
+                });
 
-				let grabComponent = motionController.getComponentOfType("squeeze");
-				grabComponent.onButtonStateChangedObservable.add(() => {
-					if (grabComponent.pressed) {
-						ctx.objects.forEach((obj) => {
-							obj.onGrab(controller.grip);
-						});
-					} else {
-						ctx.objects.forEach((obj) => {
-							obj.onGrab(undefined);
-						});
-					}
-				});
+                let grabComponent = motionController.getComponentOfType("squeeze");
+                grabComponent.onButtonStateChangedObservable.add(() => {
+                    if (grabComponent.pressed) {
+                        ctx.objects.forEach((obj) => {
+                            obj.onGrab(controller.grip);
+                        });
+                    } else {
+                        ctx.objects.forEach((obj) => {
+                            obj.onGrab(undefined);
+                        });
+                    }
+                });
 
-				let playButton = motionController.getComponent("a-button");
+                let playButton = motionController.getComponent("a-button");
 
-				playButton.onButtonStateChangedObservable.add(() => {
-					if (playButton.pressed) {
-						ctx.slider.setPlaying(true);
-					}
-				});
+                playButton.onButtonStateChangedObservable.add(() => {
+                    if (playButton.pressed) {
+                        ctx.slider.setPlaying(true);
+                    }
+                });
 
-				let pauseButton = motionController.getComponent("b-button");
+                let pauseButton = motionController.getComponent("b-button");
 
-				pauseButton.onButtonStateChangedObservable.add(() => {
-					if (pauseButton.pressed) {
-						ctx.slider.setPlaying(false);
-					}
-				});
-			});
+                pauseButton.onButtonStateChangedObservable.add(() => {
+                    if (pauseButton.pressed) {
+                        ctx.slider.setPlaying(false);
+                    }
+                });
+            });
 
-			controller.onDisposeObservable.add(() => {
-				ctx.objects.forEach((obj) => {
-					obj.onGrab(undefined);
-				});
-			});
-		}
-	});
+            controller.onDisposeObservable.add(() => {
+                ctx.objects.forEach((obj) => {
+                    obj.onGrab(undefined);
+                });
+            });
+        }
+    });
 
-	
+
 }
 
 export async function initXR(ctx) {
-	console.log("Attempting to load XR");
-	// XR
-	try {
-		new WebXRPolyfill();
-		let xrHelper = await ctx.scene.createDefaultXRExperienceAsync({
-			floorMeshes: [ctx.ground]
-		});
+    console.log("Attempting to load XR");
+    // XR
+    try {
+        new WebXRPolyfill();
+        let xrHelper = await ctx.scene.createDefaultXRExperienceAsync({
+            floorMeshes: [ctx.ground]
+        });
 
-		xrHelper.input.onControllerAddedObservable.add((controller) => {
-			if (controller.grip) {
-				attachMotionController(ctx, controller);
-			}
-		});
+        //xrHelper.baseExperience.enableSpectatorMode();
 
-		xrHelper.baseExperience.onStateChangedObservable.add((state) => {
-			//
-			console.log(state);
-			if (state == BABYLON.WebXRState.IN_XR) {
-				UI.GUI.toggleXR(true);
-			}
+        xrHelper.input.onControllerAddedObservable.add((controller) => {
+            if (controller.grip) {
+                attachMotionController(ctx, controller);
+            }
+        });
 
-			if (state == BABYLON.WebXRState.NOT_IN_XR) {
-				UI.GUI.toggleXR(false);
-			}
-		});
+        xrHelper.baseExperience.onStateChangedObservable.add((state) => {
+            //
+            console.log(state);
+            if (state == BABYLON.WebXRState.IN_XR) {
+                UI.GUI.toggleXR(true);
+            }
 
-		return {
-			xrHelper: xrHelper
-		};
-	} catch (e) {
-		// no XR support
-		console.error(e);
-		console.log("XR mode failed");
-	}
+            if (state == BABYLON.WebXRState.NOT_IN_XR) {
+                UI.GUI.toggleXR(false);
+            }
+        });
 
-	return {
-		xrHelper: undefined
-	};
+        return {
+            xrHelper: xrHelper
+        };
+    } catch (e) {
+        // no XR support
+        console.error(e);
+        console.log("XR mode failed");
+    }
+
+    return {
+        xrHelper: undefined
+    };
 }

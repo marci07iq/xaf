@@ -1,5 +1,6 @@
 {
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
-	"editor.tabSize": 4
+	"editor.tabSize": 4,
+	"python.pythonPath": "c:\\users\\marci\\anaconda3\\python.exe"
 }

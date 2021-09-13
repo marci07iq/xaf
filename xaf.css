@@ -6,7 +6,11 @@
     --slider-control-height: 30px;
     --slider-toggle-pad: 4px;
     --slider-toggle-knob: calc(var(--slider-control-height) - 2*var(--slider-toggle-pad));
+    --slider-ui-padding: 10px;
 }
+
+
+/*Slider UI*/
 
 .slider-outer {
     position: relative;
@@ -19,13 +23,16 @@
     bottom: 0px;
     position: absolute;
     pointer-events: auto;
+    color: white;
 }
 
 .slider-progress-container {
-    width: 100%;
+    /*width: 100%;*/
     background: var(--slider-passive);
     height: 5px;
     transform: translate(0px, 2.5px);
+    margin-left: var(--slider-ui-padding);
+    margin-right: var(--slider-ui-padding);
 }
 
 .slider-progress-container:hover,
@@ -63,8 +70,8 @@
 }
 
 .slider-control {
-    padding: 10px;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+    padding: var(--slider-ui-padding);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.0) 100%);
     column-count: 2;
 }
 
@@ -87,6 +94,11 @@
 }
 
 .slider-control-left {}
+
+.slider-control-left .slider-control-item {
+    float: left;
+    margin-right: var(--slider-ui-padding);
+}
 
 .slider-playbutton.pause {
     border-style: double;
@@ -207,4 +219,76 @@ input:checked+.toggle-line:before {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+
+/*Main XAF utils*/
+
+.xaf-main {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.xaf-canvas {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    top: 0;
+    left: 0;
+}
+
+.xaf-ui {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+}
+
+.xaf-ui-panel {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    padding: 10px;
+    background: #00000080;
+    color: #ffffff;
+    pointer-events: auto;
+}
+
+.xaf-blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background: #00000080;
+    color: white;
+    font-size: 36pt;
+    text-align: center;
+    padding-top: 40vh;
+}
+
+
+/*Utilities*/
+
+.noselect {
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+}
+
+.clickthrough {
+    pointer-events: none;
+}
+
+.hidden {
+    display: none;
+    visibility: hidden;
 }
