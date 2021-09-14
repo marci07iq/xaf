@@ -1,4 +1,3 @@
-data
-data*
-data/*
-manifest_*
+/data*
+/data/*
+/manifest_*

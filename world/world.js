@@ -4,6 +4,7 @@ import * as XR from "./xr.js";
 import * as Animation from '../animation/animation.js';
 import * as UI from '../ui/ui.js';
 import * as Utils from '../utils/utils.js';
+import * as DataLoader from "./data_context.js";
 
 export { Engine, Scene, XR };
 
@@ -41,12 +42,12 @@ export function addObjects(new_objects) {
 }
 
 export async function loadManifest(src) {
-    return Utils.Loader.loadTextfile(src).then((data) => {
+    return Utils.Loader.loadTextfile(src).then(async(data) => {
             let json = JSON.parse(data);
 
             let time = json.time;
 
-            let root_folder = json.root_folder;
+            let loader = await DataLoader.createDataLoader(json.source);
 
             //Load models
             return Promise.all(json.objects.map((object) => {
@@ -81,7 +82,7 @@ export async function loadManifest(src) {
                         node: node,
                         material: materials[e.material].material,
                         scene: context.scene,
-                        root_folder: root_folder
+                        loader: loader
                     }, e]);
                 })).then((elems) => {
                     return Promise.resolve(new Animation.AnimationObject(node, elems, materials));

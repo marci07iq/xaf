@@ -82,16 +82,15 @@ export class CurvedLineElement extends LineElement {
     }
 
     init() {
-        return Utils.Loader.loadKeyframes(this.filename).then((keyframes) => {
+        parent.loader.loadKeyframes(this.filename).then(keyframes => {
             this.keyframes = keyframes;
             return this.initMesh();
         });
-
     }
 };
 
 ElementFactory.registerFactory("CurvedLineElement", (ctx, data) => {
-    let elem = new CurvedLineElement(ctx, data.time, data.radius, ctx.root_folder + data.filename);
+    let elem = new CurvedLineElement(ctx, data.time, data.radius, data.filename);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });
@@ -107,8 +106,8 @@ export class BridgeLineElement extends LineElement {
 
     init() {
         return Promise.all([
-            Utils.Loader.loadKeyframes(this.from_name),
-            Utils.Loader.loadKeyframes(this.to_name)
+            parent.loader.loadKeyframes(this.from_name),
+            parent.loader.loadKeyframes(this.to_name)
         ]).then((values) => {
             this.keyframes = [
                 values[0][values[0].length - 1],
@@ -120,7 +119,7 @@ export class BridgeLineElement extends LineElement {
 };
 
 ElementFactory.registerFactory("BridgeLineElement", (ctx, data) => {
-    let elem = new BridgeLineElement(ctx, data.time, data.radius, ctx.root_folder + data.filename_f, ctx.root_folder + data.filename_t);
+    let elem = new BridgeLineElement(ctx, data.time, data.radius, data.filename_f, data.filename_t);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });

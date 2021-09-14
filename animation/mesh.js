@@ -11,10 +11,7 @@ export class MeshElement extends Element {
     }
 
     init() {
-        return BABYLON.SceneLoader.ImportMeshAsync(
-                "",
-                "",
-                this.filename,
+        return this.parent.loader.loadMesh(this.filename,
                 this.parent.scene)
             .then((newMeshes) => {
                 if (newMeshes.meshes.length != 1) {
@@ -54,7 +51,7 @@ ElementFactory.registerFactory("MeshElement", (ctx, data) => {
     let motion = (data.motion != undefined) ?
         TransitionFactory.useFactory(data.motion.type, [data.motion]) :
         TransitionFactory.useFactory("TransitionStatic", [{}]);
-    let elem = new MeshElement(ctx, data.time, ctx.root_folder + data.filename, motion);
+    let elem = new MeshElement(ctx, data.time, data.filename, motion);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });
