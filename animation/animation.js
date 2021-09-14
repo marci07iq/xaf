@@ -2,6 +2,9 @@ export * from './element.js';
 export * from './line.js';
 export * from './mesh.js';
 
+import * as Focus from './focus.js';
+export { Focus };
+
 import * as Utils from "../utils/utils.js";
 import { context } from '../world/world.js';
 
@@ -12,7 +15,10 @@ export class AnimationObject {
         this.materials = materials;
         this.grabable = false;
 
-        this.follow = true;
+        this.follow_camera = false;
+        this.show_arrow = false;
+
+        this.arrow_pool = [];
     }
 
     setProgress(progress) {
@@ -20,7 +26,11 @@ export class AnimationObject {
             e.setProgress(progress);
         });
 
-        if (this.follow) {
+        if (this.follow_camera) {
+            Focus.simpleCameraFollow(this, context.camera);
+        }
+        if (this.show_arrow) {
+            Focus.simpleFocusArrows(this, context.scene, this.materials["focus_arrow"]);
 
         }
     }

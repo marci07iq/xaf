@@ -73,6 +73,9 @@ export async function loadManifest(src) {
 
                 //Object
                 let node = new BABYLON.TransformNode();
+                if (object.position != undefined) {
+                    node.position = Utils.Geometry.createVector(object.position);
+                }
                 return Promise.all(object.elems.map((e) => {
                     return Animation.ElementFactory.useFactory(e.type, [{
                         node: node,

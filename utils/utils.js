@@ -1,5 +1,6 @@
 import * as Loader from './loader.js';
 import * as Geometry from './geometry.js';
+
 export { Loader, Geometry };
 
 export function getDefault(val, def) {

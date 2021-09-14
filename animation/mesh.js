@@ -41,8 +41,10 @@ export class MeshElement extends Element {
     }
 
     getFocus() {
+        let motion = this.motion.getPosition(this.local_progress);
         return {
-            target: this.motion.getPosition(this.local_progress).pos
+            target: motion.pos,
+            weight: motion.weight
         };
     }
 };
