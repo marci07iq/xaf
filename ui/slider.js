@@ -171,7 +171,7 @@ export function Slider(
     this.moveKnob = (e) => {
         if (this.dragging) {
             let scrollRect = this.elems.progress.base.getClientRects()[0];
-            let rel_progress = (e.screenX - scrollRect.left) / (scrollRect.right - scrollRect.left);
+            let rel_progress = (e.clientX - scrollRect.left) / (scrollRect.right - scrollRect.left);
             let val_progress = this.range[0] + (this.range[1] - this.range[0]) * rel_progress;
             this.setProgress(val_progress);
         }

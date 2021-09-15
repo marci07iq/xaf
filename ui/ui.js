@@ -73,6 +73,13 @@ export let GUI = (() => {
 
         addToGroup(html_root, description.group);
 
+		hwnd.setVisible = (v) => {
+			if(v) {
+				html_root.classList.remove("hidden");
+			} else {
+				html_root.classList.add("hidden");
+			}
+		}
         hwnd.root = html_root;
         hwnd.elem = html_elem;
         hwnd.id = id;
