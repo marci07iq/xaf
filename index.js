@@ -10,6 +10,8 @@ window.onload = () => {
         //Wait for loading
         let animation = await XAF.World.loadManifest("manifest_sushi.json");
 
+        //let slider = XAF.UI.GUI.initSlider(0, 1, 0.5, 1);
+
         //animation.objects[0].node.position.y = 1.5;
 
         //Allow changing main body opacity

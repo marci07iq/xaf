@@ -101,7 +101,9 @@ export async function initXR(ctx) {
             floorMeshes: [ctx.ground],
             disableTeleportation: true
         });
+		//Teleporation is broken
         //xrHelper.teleportation.detach();
+		//
         xrHelper.pointerSelection.detach();
 
         //xrHelper.baseExperience.enableSpectatorMode();
