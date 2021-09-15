@@ -40,11 +40,13 @@ export class AnimationObject {
     }
 
     setGrabable(grabable) {
+        let newly = grabable && (!this.grabable);
         this.grabable = grabable;
 
         Utils.forEachDict(this.materials, (k, v) => {
             v.material.diffuseColor = this.grabable ? v.color_select : v.color;
         });
+        return newly;
     }
 
     onMotionControllerMove(position) {
@@ -52,7 +54,7 @@ export class AnimationObject {
 
         let localPos = BABYLON.Vector3.TransformCoordinates(position, mat);
 
-        this.setGrabable(this.local_bounding_box.intersectsPoint(localPos));
+        return this.setGrabable(this.local_bounding_box.intersectsPoint(localPos));
     }
 
     onGrab(parent) {

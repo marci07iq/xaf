@@ -12,10 +12,15 @@ async function attachMotionController(ctx, controller) {
                 let lastpos = undefined;
 
                 ctx.scene.registerBeforeRender(() => {
+                    let vibrate = false;
                     lastpos = controller.grip._position;
                     ctx.objects.forEach((obj) => {
-                        obj.onMotionControllerMove(lastpos);
+                        vibrate |= obj.onMotionControllerMove(lastpos);
                     });
+                    if (vibrate) {
+                        //Vibrate controller when entering new object. Usually doesnt work.
+                        motionController.pulse(1, 100);
+                    }
                 });
 
                 //Grab
@@ -119,10 +124,14 @@ export async function initXR(ctx) {
             }
         });
 
+        let last_frame_time = performance.now();
         ctx.scene.registerBeforeRender(() => {
+            let new_frame_time = performance.now();
             if (ctx.slider != undefined) {
-                ctx.slider.setProgressRelative(right_thumbstick_axes[0] / 20.0);
+                let elapsed = new_frame_time - last_frame_time;
+                ctx.slider.setProgressRelative((0.3 * right_thumbstick_axes[0] + 4 * Math.abs(right_thumbstick_axes[0]) * right_thumbstick_axes[0]) * (elapsed / 1000.0));
             }
+            last_frame_time = new_frame_time;
         });
 
         return {
