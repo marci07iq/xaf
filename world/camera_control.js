@@ -159,11 +159,98 @@ class FirstPersonViewCameraController extends CameraController {
 	}
 }
 
+class ThirdPersonViewCameraController extends CameraController {
+	constructor(ctx) {
+		super(ctx, []);
+
+		this.radius = 1;
+	}
+
+	onActivate() {
+		super.onActivate();
+	}
+
+	onDeactivate() {
+		super.onDeactivate();
+	}
+
+	onMouseWheel(delta) {
+        let mult = Math.pow(0.999, delta);
+        //console.log(mult);
+        let new_radius = Math.min(Math.max(1e-3, this.radius * mult), 5);
+
+
+
+		let forward = this.ctx.camera.getTarget().subtract(this.ctx.camera.position).normalize();
+
+		let center = this.ctx.camera.position.add(forward.scale(this.radius));
+
+		this.ctx.camera.position.copyFrom(center.add(forward.scale(-new_radius)));
+		this.ctx.camera.setTarget(center);
+
+		this.radius = new_radius;
+	}
+
+	onFrame(delta_t) {
+		
+	}
+
+	onMouseDrag(position, type, offset) {
+		//Left drag (move)
+		if(type == 0) {
+			let forward = this.ctx.camera.getTarget().subtract(this.ctx.camera.position).normalize();
+
+			let move_up = new BABYLON.Vector3(0, 1, 0);
+			let right = BABYLON.Vector3.Cross(forward, move_up).normalize();
+
+			let up = BABYLON.Vector3.Cross(right, forward).normalize();
+
+			this.ctx.camera.position.addInPlace(up.scale(this.radius * offset[1] / this.ctx.canvas.height));
+			this.ctx.camera.position.addInPlace(right.scale(this.radius * offset[0] / this.ctx.canvas.height));
+		}
+
+		//Right (rotate)
+		if(type == 2) {
+			let forward = this.ctx.camera.getTarget().subtract(this.ctx.camera.position).normalize();
+
+			let theta = Math.acos(forward.y);
+			let phi = Math.atan2(forward.z, forward.x);
+
+			theta += offset[1] / 400.0;
+			phi -= offset[0] / 400.0;
+
+			theta = Math.min(Math.max(0.001, theta), 3.14);
+			//phi = phi % (2*Math.PI);
+
+			let center = this.ctx.camera.position.add(forward.scale(this.radius));
+			
+			let new_forward = new BABYLON.Vector3(
+				Math.sin(theta) * Math.cos(phi),
+				Math.cos(theta),
+				Math.sin(theta) * Math.sin(phi));
+
+			let new_up = new BABYLON.Vector3(
+				-Math.cos(theta) * Math.cos(phi),
+				Math.sin(theta),
+				-Math.cos(theta) * Math.sin(phi));
+
+
+			this.ctx.camera.position.copyFrom(center.add(new_forward.scale(-this.radius)));
+			this.ctx.camera.setTarget(center);
+
+			this.ctx.camera.upVector.copyFrom(new_up);
+		}
+	}
+}
+
 export function initCameraController(ctx) {
 	let current_controller = undefined;
 
 	let fpv_controller = new FirstPersonViewCameraController(ctx);
 	fpv_controller.onDeactivate();
+
+	let tpv_controller = new ThirdPersonViewCameraController(ctx);
+	tpv_controller.onDeactivate();
 
 	document.addEventListener('wheel', (evt) => {
 		if(current_controller != undefined) {
@@ -194,10 +281,12 @@ export function initCameraController(ctx) {
 			current_controller.onHalt();
 		}
 	});
-	document.addEventListener('contextmenu', () => {
+	document.addEventListener('contextmenu', (e) => {
 		if(current_controller != undefined) {
 			current_controller.onHalt();
 		}
+		e.preventDefault();
+		return false;
 	});
 
 	let last_pos = undefined;
@@ -245,6 +334,14 @@ export function initCameraController(ctx) {
 				current_controller.onDeactivate();
 			}
 			current_controller = fpv_controller;
+			current_controller.onActivate();
+		},
+
+		enable_tpv: () => {
+			if(current_controller != undefined) {
+				current_controller.onDeactivate();
+			}
+			current_controller = tpv_controller;
 			current_controller.onActivate();
 		}
 	};

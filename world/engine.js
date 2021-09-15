@@ -20,6 +20,8 @@ export async function initEngine(canvas) {
 
 	//Allow custom camera controls to attach
 	scene.preventDefaultOnPointerDown = false;
+	//Dont run meshpicker on each mouse move. Massive performance bonus on weak machines
+	scene.detachControl(canvas);
 
     scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
     scene.fogStart = 3;
