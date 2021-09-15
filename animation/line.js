@@ -82,7 +82,7 @@ export class CurvedLineElement extends LineElement {
     }
 
     init() {
-        parent.loader.loadKeyframes(this.filename).then(keyframes => {
+        return this.parent.loader.loadKeyframes(this.filename).then(keyframes => {
             this.keyframes = keyframes;
             return this.initMesh();
         });
@@ -106,8 +106,8 @@ export class BridgeLineElement extends LineElement {
 
     init() {
         return Promise.all([
-            parent.loader.loadKeyframes(this.from_name),
-            parent.loader.loadKeyframes(this.to_name)
+            this.parent.loader.loadKeyframes(this.from_name),
+            this.parent.loader.loadKeyframes(this.to_name)
         ]).then((values) => {
             this.keyframes = [
                 values[0][values[0].length - 1],

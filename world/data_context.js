@@ -16,7 +16,7 @@ class DataLoader {
             //Clean empty rows.
             rows.forEach((row) => {
                 if (row.length > 0) {
-                    res.push(row);
+                    lines.push(row);
                 }
             });
             return lines.map((line) => {

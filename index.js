@@ -8,7 +8,7 @@ window.onload = () => {
         message: ["Please click to begin"]
     }, async() => {
         //Wait for loading
-        let animation = await XAF.World.loadManifest("manifest_sushi2.json");
+        let animation = await XAF.World.loadManifest("manifest_sushi.json");
 
         //animation.objects[0].node.position.y = 1.5;
 
