@@ -60,7 +60,7 @@ export async function loadManifest(src) {
                     let color_select =
                         (v.color_select != undefined) ?
                         new BABYLON.Color3(v.color_select.r, v.color_select.g, v.color_select.b) :
-                        color;
+                        new BABYLON.Color3(1 - (1 - v.color.r) * 0.8, 1 - (1 - v.color.g) * 0.8, 1 - (1 - v.color.b) * 0.8);
 
                     mat.alpha = 1.0;
                     mat.diffuseColor = color;
@@ -85,7 +85,7 @@ export async function loadManifest(src) {
                         loader: loader
                     }, e]);
                 })).then((elems) => {
-                    return Promise.resolve(new Animation.AnimationObject(node, elems, materials));
+                    return Promise.resolve(new Animation.AnimationObject(node, elems, materials, object.boundry));
                 });
             })).then((objects) => {
                 addObjects(objects);
@@ -101,7 +101,7 @@ export async function loadManifest(src) {
                 animation.time.max,
                 animation.time.max,
                 animation.time.speed);
-            context.slider.onValue.push((v) => {
+            context.slider.callbacks.onValue.push((v) => {
                 animation.objects.forEach(obj => {
                     obj.setProgress(v);
                 });

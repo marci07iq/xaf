@@ -5,7 +5,7 @@ window.XAF = XAF; //For console
 window.onload = () => {
     XAF.init({
         delayed: true,
-        message: ["Hi"]
+        message: ["Please click to begin"]
     }, async() => {
         //Wait for loading
         let animation = await XAF.World.loadManifest("manifest_sushi2.json");

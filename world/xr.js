@@ -1,9 +1,12 @@
 import * as UI from "../ui/ui.js";
 
+let right_thumbstick_axes = [0, 0];
+
 async function attachMotionController(ctx, controller) {
     //Turn controller into motionController
     controller.onMotionControllerInitObservable.add((motionController) => {
         //Wait for mesh. Controller is fully loaded now
+
         if (motionController.handedness == "right") {
             motionController.onModelLoadedObservable.add((model) => {
                 let lastpos = undefined;
@@ -15,6 +18,7 @@ async function attachMotionController(ctx, controller) {
                     });
                 });
 
+                //Grab
                 let grabComponent = motionController.getComponentOfType("squeeze");
                 grabComponent.onButtonStateChangedObservable.add(() => {
                     if (grabComponent.pressed) {
@@ -28,27 +32,54 @@ async function attachMotionController(ctx, controller) {
                     }
                 });
 
-                let playButton = motionController.getComponent("a-button");
 
+                //A: play/pause
+                let playButton = motionController.getComponent("a-button");
                 playButton.onButtonStateChangedObservable.add(() => {
                     if (playButton.pressed) {
-                        ctx.slider.setPlaying(true);
+                        ctx.slider.togglePlaying();
                     }
                 });
 
-                let pauseButton = motionController.getComponent("b-button");
+                let thumbstickComponent = motionController.getComponent("xr-standard-thumbstick");
+                thumbstickComponent.onButtonStateChangedObservable.add(() => {
 
-                pauseButton.onButtonStateChangedObservable.add(() => {
-                    if (pauseButton.pressed) {
-                        ctx.slider.setPlaying(false);
-                    }
+                });
+                thumbstickComponent.onAxisValueChangedObservable.add((axes) => {
+                    right_thumbstick_axes = [axes.x, axes.y];
                 });
             });
 
             controller.onDisposeObservable.add(() => {
+                right_thumbstick_axes = [0, 0];
+
                 ctx.objects.forEach((obj) => {
                     obj.onGrab(undefined);
                 });
+            });
+        }
+
+
+        if (motionController.handedness == "left") {
+            //x: teleport user home
+            let resetUserButton = motionController.getComponent("x-button");
+            resetUserButton.onButtonStateChangedObservable.add(() => {
+                if (resetUserButton.pressed) {
+                    ctx.xrHelper.baseExperience.camera.position.x = 0;
+                    ctx.xrHelper.baseExperience.camera.position.z = 0;
+                }
+            });
+
+            //y: teleport objects home
+            let resetSceneButton = motionController.getComponent("y-button");
+            resetSceneButton.onButtonStateChangedObservable.add(() => {
+                if (resetSceneButton.pressed) {
+                    ctx.objects.forEach((obj) => {
+                        obj.node.position.x = 0;
+                        obj.node.position.y = 1.5;
+                        obj.node.position.z = 0;
+                    });
+                }
             });
         }
     });
@@ -60,10 +91,13 @@ export async function initXR(ctx) {
     console.log("Attempting to load XR");
     // XR
     try {
-        new WebXRPolyfill();
+        //new WebXRPolyfill();
         let xrHelper = await ctx.scene.createDefaultXRExperienceAsync({
-            floorMeshes: [ctx.ground]
+            floorMeshes: [ctx.ground],
+            disableTeleportation: true
         });
+        //xrHelper.teleportation.detach();
+        xrHelper.pointerSelection.detach();
 
         //xrHelper.baseExperience.enableSpectatorMode();
 
@@ -82,6 +116,12 @@ export async function initXR(ctx) {
 
             if (state == BABYLON.WebXRState.NOT_IN_XR) {
                 UI.GUI.toggleXR(false);
+            }
+        });
+
+        ctx.scene.registerBeforeRender(() => {
+            if (ctx.slider != undefined) {
+                ctx.slider.setProgressRelative(right_thumbstick_axes[0] / 20.0);
             }
         });
 

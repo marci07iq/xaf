@@ -123,13 +123,17 @@ export function Slider(
     }
     this.setProgress(start_val);
 
+    this.setProgressRelative = (seconds) => {
+        return this.setProgress(this.val + seconds * speed);
+    };
+
     this.lastAnimationFrame = undefined;
     this.playing = false;
     this.animationFrame = (time) => {
         if (this.playing) {
             if (this.lastAnimationFrame != undefined) {
                 let ms_elapsed = time - this.lastAnimationFrame;
-                if (this.setProgress(this.val + speed * ms_elapsed / 1000.)) {
+                if (this.setProgressRelative(ms_elapsed / 1000.)) {
                     this.setPlaying(false);
                 }
             }
@@ -159,7 +163,10 @@ export function Slider(
         }
     };
     this.setPlaying(false);
-    this.elems.lower.left.play_button.onclick = () => { this.setPlaying(!this.playing) };
+    this.togglePlaying = () => {
+        this.setPlaying(!this.playing);
+    }
+    this.elems.lower.left.play_button.onclick = () => { this.togglePlaying(); };
 
     this.moveKnob = (e) => {
         if (this.dragging) {
@@ -168,7 +175,7 @@ export function Slider(
             let val_progress = this.range[0] + (this.range[1] - this.range[0]) * rel_progress;
             this.setProgress(val_progress);
         }
-    }
+    };
 
     this.dragging = false;
     this.setDragging = (dragging) => {
@@ -179,7 +186,8 @@ export function Slider(
         } else {
             this.elems.progress.base.classList.remove("expand");
         }
-    }
+    };
+
     this.elems.progress.base.addEventListener('mousedown', e => {
         this.setPlaying(false);
         this.setDragging(true);

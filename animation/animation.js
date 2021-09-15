@@ -9,7 +9,7 @@ import * as Utils from "../utils/utils.js";
 import { context } from '../world/world.js';
 
 export class AnimationObject {
-    constructor(node, elems, materials) {
+    constructor(node, elems, materials, boundry) {
         this.node = node;
         this.elems = elems;
         this.materials = materials;
@@ -19,6 +19,10 @@ export class AnimationObject {
         this.show_arrow = false;
 
         this.arrow_pool = [];
+
+        this.local_bounding_box = new BABYLON.BoundingBox(
+            Utils.Geometry.createVector(boundry[0]),
+            Utils.Geometry.createVector(boundry[1]));
     }
 
     setProgress(progress) {
@@ -39,12 +43,16 @@ export class AnimationObject {
         this.grabable = grabable;
 
         Utils.forEachDict(this.materials, (k, v) => {
-            v.mat.diffuseColor = this.grabable ? v.color_select : context.color;
+            v.material.diffuseColor = this.grabable ? v.color_select : v.color;
         });
     }
 
     onMotionControllerMove(position) {
-        this.setGrabable(this.mesh.getBoundingInfo().intersectsPoint(position));
+        let mat = this.node.getWorldMatrix().clone().invert();
+
+        let localPos = BABYLON.Vector3.TransformCoordinates(position, mat);
+
+        this.setGrabable(this.local_bounding_box.intersectsPoint(localPos));
     }
 
     onGrab(parent) {
