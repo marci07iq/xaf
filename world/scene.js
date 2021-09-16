@@ -12,8 +12,9 @@ export function initScene(ctx) {
 
     ctx.camera = camera;
 
-	let controller = Camera.initCameraController(ctx);
-	controller.enable_tpv();
+    let controller = Camera.initCameraController(ctx);
+    ctx.controller = controller;
+    controller.enable_controller_name("tpv");
 
     // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
     //let light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);

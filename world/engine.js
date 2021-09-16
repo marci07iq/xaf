@@ -18,10 +18,12 @@ export async function initEngine(canvas) {
     // This creates a basic Babylon Scene object (non-mesh)
     let scene = new BABYLON.Scene(engine);
 
-	//Allow custom camera controls to attach
-	scene.preventDefaultOnPointerDown = false;
-	//Dont run meshpicker on each mouse move. Massive performance bonus on weak machines
-	scene.detachControl(canvas);
+    //Allow custom camera controls to attach
+    scene.preventDefaultOnPointerDown = false;
+    //Dont run meshpicker on each mouse move. Massive performance bonus on weak machines
+    scene.detachControl(canvas);
+    //This messes with tabindex. Needed to get key inputs to work
+    canvas.tabindex = 1;
 
     scene.fogMode = BABYLON.Scene.FOGMODE_LINEAR;
     scene.fogStart = 3;
