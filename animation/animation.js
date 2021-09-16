@@ -58,6 +58,10 @@ export class AnimationObject {
     }
 
     onGrab(parent) {
-        this.node.setParent(parent);
+        if (this.grabable) {
+            this.node.setParent(parent);
+        } else {
+            this.node.setParent(undefined);
+        }
     }
 };

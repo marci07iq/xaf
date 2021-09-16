@@ -99,7 +99,7 @@ export class TransitionStatic {
         return {
             show: 1,
             weight: 0,
-            pos: pos
+            pos: this.pos
         };
     }
 }
