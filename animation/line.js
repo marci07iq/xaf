@@ -2,23 +2,27 @@ import { Element, ElementFactory } from './element.js';
 import * as Utils from '../utils/utils.js'
 
 export class LineElement extends Element {
-    constructor(parent, time, radius) {
-        super(parent, time);
+    constructor(parent, time, motion, radius) {
+        super(parent, motion);
+        this.time = time;
         this.radius = radius;
     }
 
+    //init is overloaded in child classes
+
+    //after loading child init calls initMesh
     initMesh() {
         this.length = Utils.Geometry.pathLength(this.keyframes);
 
         let path = Utils.Geometry.createPath(this.keyframes, 1);
         this.mesh1 = BABYLON.Mesh.CreateTube("tube", path, this.radius, 16, null, BABYLON.CAP_ALL, this.parent.scene, false);
         this.mesh1.material = this.parent.material;
-        this.mesh1.parent = this.parent.node;
+        this.mesh1.parent = this.node;
         this.updateMesh();
         return Promise.resolve();
     }
 
-    updateMesh() {
+    updateMesh(local_progress) {
         //Delete temp mesh
         if (this.meshx != undefined) {
             this.meshx.dispose();
@@ -26,18 +30,18 @@ export class LineElement extends Element {
         }
 
         //Incomplete
-        if (this.local_progress < 1) {
+        if (local_progress < 1) {
             //Hide full
             if (this.mesh1 != undefined) {
                 this.mesh1.setEnabled(false);
             }
 
             //Create temp
-            if (this.local_progress > 0) {
-                let path = Utils.Geometry.createPath(this.keyframes, this.local_progress);
+            if (local_progress > 0) {
+                let path = Utils.Geometry.createPath(this.keyframes, local_progress);
                 this.meshx = BABYLON.Mesh.CreateTube("tube", path, this.radius, 16, null, BABYLON.CAP_ALL, this.parent.scene, false);
                 this.meshx.material = this.parent.material;
-                this.meshx.parent = this.parent.node;
+                this.meshx.parent = this.node;
             }
         } else {
             //Full
@@ -48,11 +52,33 @@ export class LineElement extends Element {
         }
     }
 
-    update() {
-        this.updateMesh();
+    getLocalProgress(time) {
+        let local_progress = (this.time.max > this.time.min) ?
+            ((time - this.time.min) / (this.time.max - this.time.min)) :
+            ((time > this.time.min) ? 1 : 0);
+
+        //let oub = (local_progress < 0 || 1 <= local_progress); //Bounds range from [0,1)
+        local_progress = Math.min(Math.max(0, local_progress), 1);
+
+        return local_progress;
     }
 
-    getFocus() {
+    update(time) {
+        let local_progress = this.getLocalProgress(time);
+
+        let change = (this.local_progress != local_progress); //|| (oub != this.oub);
+
+        //this.local_progress = local_progress;
+        //this.oub = oub;
+
+        if (change) {
+            this.updateMesh(local_progress);
+        }
+    }
+
+    getMeshFocus(time) {
+        let local_progress = this.getLocalProgress(time);
+
         let key_id = 1 + Math.floor((this.keyframes.length - 1) * this.local_progress); //1..length
         let last_frame_partial = (this.local_progress - (key_id - 1) * 1.0 / (this.keyframes.length - 1)) / ((1.0 / (this.keyframes.length - 1)));
 
@@ -75,8 +101,8 @@ export class LineElement extends Element {
 };
 
 export class CurvedLineElement extends LineElement {
-    constructor(parent, time, radius, filename) {
-        super(parent, time, radius);
+    constructor(parent, time, motion, radius, filename) {
+        super(parent, time, motion, radius);
 
         this.filename = filename;
     }
@@ -90,15 +116,15 @@ export class CurvedLineElement extends LineElement {
 };
 
 ElementFactory.registerFactory("CurvedLineElement", (ctx, data) => {
-    let elem = new CurvedLineElement(ctx, data.time, data.radius, data.filename);
+    let elem = new CurvedLineElement(ctx, data.time, data.motion, data.radius, data.filename);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });
 });
 
 export class BridgeLineElement extends LineElement {
-    constructor(parent, time, radius, from_name, to_name) {
-        super(parent, time, radius);
+    constructor(parent, time, motion, radius, from_name, to_name) {
+        super(parent, time, motion, radius);
 
         this.from_name = from_name;
         this.to_name = to_name;
@@ -119,7 +145,7 @@ export class BridgeLineElement extends LineElement {
 };
 
 ElementFactory.registerFactory("BridgeLineElement", (ctx, data) => {
-    let elem = new BridgeLineElement(ctx, data.time, data.radius, data.filename_f, data.filename_t);
+    let elem = new BridgeLineElement(ctx, data.time, data.motion, data.radius, data.filename_f, data.filename_t);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });

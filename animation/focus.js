@@ -1,6 +1,6 @@
 import * as Utils from "../utils/utils.js";
 
-export function findFocusProperties(object) {
+/*export function findFocusProperties(object) {
     let focii = [];
     object.elems.forEach(elem => {
         if (!elem.oub) {
@@ -81,4 +81,4 @@ export function simpleCameraFollow(object, camera) {
         camera.setTarget(BABYLON.Vector3.TransformCoordinates(
             Utils.Geometry.createVector(tgt_avg), mat));
     }
-}
+}*/

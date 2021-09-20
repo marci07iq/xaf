@@ -25,9 +25,11 @@ export class AnimationObject {
             Utils.Geometry.createVector(boundry[1]));
     }
 
-    setProgress(progress) {
+    setTime(time) {
+        this.time = time;
+
         this.elems.forEach((e) => {
-            e.setProgress(progress);
+            e.setTime(time);
         });
 
         if (this.follow_camera) {

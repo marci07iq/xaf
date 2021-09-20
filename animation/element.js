@@ -1,29 +1,36 @@
 import * as Utils from "../utils/utils.js";
 
+import { TransitionFactory, TransitionStatic } from './transition.js';
+
 export class Element {
-    constructor(parent, time) {
+    constructor(parent, motion) {
         this.parent = parent;
-        this.time = time;
-        this.local_progress = 1;
-        this.oub = true;
-    }
 
-    setProgress(progress) {
-        let local_progress = (this.time.max > this.time.min) ?
-            ((progress - this.time.min) / (this.time.max - this.time.min)) :
-            ((progress > this.time.min) ? 1 : 0);
+        this.node = new BABYLON.TransformNode();
+        this.node.parent = this.parent.node;
 
-        let oub = (local_progress < 0 || 1 <= local_progress); //Bounds range from [0,1)
-        local_progress = Math.min(Math.max(0, local_progress), 1);
-
-        let change = (this.local_progress != local_progress) || (oub != this.oub);
-
-        this.local_progress = local_progress;
-        this.oub = oub;
-
-        if (change) {
-            this.update();
+        //Turn single motion object to array
+        if (motion != undefined) {
+            if (!Array.isArray(motion)) {
+                motion = [motion];
+            }
+        } else {
+            motion = [];
         }
+
+        if (motion.length == 0) {
+            motion.push({
+                type: "TransitionStatic",
+                time: { min: 0, max: 1 }
+            });
+        }
+
+        //Sort to be increasing in time min
+        motion = motion.sort((firstEl, secondEl) => { return firstEl.time.min > secondEl.time.min });
+
+        this.motion = motion.map(m => {
+            return TransitionFactory.useFactory(m.type, [m]);
+        });
     }
 
     //Called for async loading (put XHR requests here), return Promise
@@ -31,14 +38,47 @@ export class Element {
         throw Error("overload");
     }
 
-    //After any important parameter has changed
-    update() {
+    setTime(time) {
+        //Set position
+        this.node.position = Utils.Geometry.createVector(this.getMotionElem(time).getPosition(time).pos);
+
+        //And update mesh
+        this.update(time);
+    }
+
+    update(time) {
         throw Error("overload");
     }
 
     //Query POI
-    getFocus() {
+    getMeshFocus(time) {
         throw Error("overload");
+    }
+
+    //Query POI
+    getFocus(time) {
+        let position = this.getMotionElem(time).getPosition(time);
+        let mesh_focus = this.getMeshFocus(time);
+
+        let res = {
+            target: position.pos + mesh_focus.target,
+            direction: mesh_focus.direction,
+            distance: mesh_focus.distance,
+            offset: mesh_focus.offset,
+            weight: position.weight + mesh_focus.weight,
+        };
+
+        return res;
+    }
+
+    getMotionElem(time) {
+        for (let i = this.motion.length - 1; i >= 0; i--) {
+            let m = this.motion[i];
+            if (m.time.min < time) {
+                return m;
+            }
+        }
+        return this.motion[0];
     }
 };
 

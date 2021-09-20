@@ -42,6 +42,7 @@ export function addObjects(new_objects) {
 }
 
 export async function loadManifest(src) {
+    UI.Blocker.beginTask();
     return Utils.Loader.loadTextfile(src).then(async(data) => {
             let json = JSON.parse(data);
 
@@ -51,6 +52,7 @@ export async function loadManifest(src) {
 
             //Load models
             return Promise.all(json.objects.map((object) => {
+                UI.Blocker.beginTask();
                 //Load materials
                 let materials = {};
                 Utils.forEachDict(object.materials, (k, v) => {
@@ -78,13 +80,18 @@ export async function loadManifest(src) {
                     node.position = Utils.Geometry.createVector(object.position);
                 }
                 return Promise.all(object.elems.map((e) => {
+                    UI.Blocker.beginTask();
                     return Animation.ElementFactory.useFactory(e.type, [{
                         node: node,
                         material: materials[e.material].material,
                         scene: context.scene,
                         loader: loader
-                    }, e]);
+                    }, e]).then((elem) => {
+                        UI.Blocker.endTask();
+                        return Promise.resolve(elem);
+                    });
                 })).then((elems) => {
+                    UI.Blocker.endTask();
                     return Promise.resolve(new Animation.AnimationObject(node, elems, materials, object.boundry));
                 });
             })).then((objects) => {
@@ -103,9 +110,10 @@ export async function loadManifest(src) {
                 animation.time.speed);
             context.slider.callbacks.onValue.push((v) => {
                 animation.objects.forEach(obj => {
-                    obj.setProgress(v);
+                    obj.setTime(v);
                 });
             });
+            UI.Blocker.endTask();
             return Promise.resolve(animation);
         });
 }

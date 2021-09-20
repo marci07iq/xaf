@@ -73,13 +73,13 @@ export let GUI = (() => {
 
         addToGroup(html_root, description.group);
 
-		hwnd.setVisible = (v) => {
-			if(v) {
-				html_root.classList.remove("hidden");
-			} else {
-				html_root.classList.add("hidden");
-			}
-		}
+        hwnd.setVisible = (v) => {
+            if (v) {
+                html_root.classList.remove("hidden");
+            } else {
+                html_root.classList.add("hidden");
+            }
+        }
         hwnd.root = html_root;
         hwnd.elem = html_elem;
         hwnd.id = id;
@@ -134,31 +134,57 @@ export let Blocker = (() => {
 
     let blocker_element;
 
+    let tasks = 0;
+    let done_tasks = 0;
+
+    let stage = 0;
+
+    let update_text = () => {
+        if (stage == 0) {
+            blocker_element.innerHTML = "Click here to load";
+        }
+        if (stage == 1) {
+            blocker_element.innerHTML = "Loading, please wait.<br>This may take a while<br>" + done_tasks + "/" + tasks;
+        }
+    }
+
     return {
         init: (element, delayed) => {
             blocker_element = element;
             blocker_element.onclick = click_handler;
             if (delayed) {
                 return new Promise((resolve, reject) => {
-                    blocker_element.innerHTML = "Click here to load";
+                    stage = 0;
+                    update_text();
                     current_click_handler = () => {
-                        blocker_element.innerHTML = "Loading, please wait.<br>This may take a while";
+                        stage = 1;
+                        update_text();
                         resolve();
                     }
 
                 });
             } else {
-                blocker_element.innerHTML = "Loading, please wait.<br>This may take a while";
+                stage = 1;
+                update_text();
                 return Promise.resolve();
             }
         },
         loadingEnd: (welcomeMessage) => {
+            console.log(done_tasks + "/" + tasks);
+            stage = 2;
             blocker_element.innerHTML = welcomeMessage.join("\n");
             current_click_handler = () => {
                 //Suicide
                 blocker_element.parentNode.removeChild(blocker_element);
             }
         },
-
+        beginTask: () => {
+            tasks += 1;
+            update_text();
+        },
+        endTask: () => {
+            done_tasks += 1;
+            update_text();
+        }
     };
 })();

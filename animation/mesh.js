@@ -1,13 +1,10 @@
 import * as Utils from '../utils/utils.js';
 import { Element, ElementFactory } from './element.js';
 //import * as Utils from '../utils/utils.js'
-import { TransitionFactory } from './transition.js';
-
 export class MeshElement extends Element {
-    constructor(parent, time, filename, motion) {
-        super(parent, time);
+    constructor(parent, motion, filename) {
+        super(parent, motion);
         this.filename = filename;
-        this.motion = motion;
     }
 
     init() {
@@ -19,17 +16,16 @@ export class MeshElement extends Element {
                 }
                 this.mesh = newMeshes.meshes[0];
                 this.mesh.material = this.parent.material;
-                this.mesh.parent = this.parent.node;
-                this.update();
+                this.mesh.parent = this.node;
+                this.setTime(Infinity);
                 return Promise.resolve();
             });
     }
 
-    update() {
+    update(time) {
         if (this.mesh != undefined) {
-            let pos = this.motion.getPosition(this.local_progress);
+            let pos = this.getMotionElem(time).getPosition(time);
             if (pos.show) {
-                this.mesh.position = Utils.Geometry.createVector(pos.pos);
                 this.mesh.setEnabled(true);
             } else {
                 this.mesh.setEnabled(false);
@@ -37,8 +33,8 @@ export class MeshElement extends Element {
         }
     }
 
-    getFocus() {
-        let motion = this.motion.getPosition(this.local_progress);
+    getFocus(time) {
+        let motion = this.getMotionElem(time).getPosition(time);
         return {
             target: motion.pos,
             weight: motion.weight
@@ -48,10 +44,7 @@ export class MeshElement extends Element {
 
 ElementFactory.registerFactory("MeshElement", (ctx, data) => {
 
-    let motion = (data.motion != undefined) ?
-        TransitionFactory.useFactory(data.motion.type, [data.motion]) :
-        TransitionFactory.useFactory("TransitionStatic", [{}]);
-    let elem = new MeshElement(ctx, data.time, data.filename, motion);
+    let elem = new MeshElement(ctx, data.motion, data.filename);
     return elem.init().then(() => {
         return Promise.resolve(elem);
     });
