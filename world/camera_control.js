@@ -10,7 +10,8 @@ class CameraController {
 
         this.enable_button_hwnd = XAF.UI.GUI.addElem({
             "type": "button",
-            "name": name
+            "name": name,
+            group: UI.GUI.get2DGroup()
         }, () => { ctx.controller.enable_controller_obj(this); });
     }
 
@@ -76,7 +77,8 @@ class FirstPersonViewCameraController extends CameraController {
             type: "slider",
             min: 1e-1,
             max: 10,
-            name: "Camera speed"
+            name: "Camera speed",
+            group: UI.GUI.get2DGroup()
         }, (v) => {
             this.speed = v;
         });

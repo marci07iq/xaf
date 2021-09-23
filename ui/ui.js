@@ -98,6 +98,11 @@ export let GUI = (() => {
         return hwnd;
     };
 
+    let screen_group = addElem({ type: "group" }, () => {});
+    screen_group.setVisible(true);
+
+    let xr_group = addElem({ type: "group" }, () => {});
+    xr_group.setVisible(false);
 
     return {
         init: (parent, scene) => {
@@ -109,8 +114,17 @@ export let GUI = (() => {
             }
         },
 
-        toggleXR: (enable) => {
+        getXRGroup: () => {
+            return xr_group;
+        },
 
+        get2DGroup: () => {
+            return screen_group;
+        },
+
+        toggleXR: (enable) => {
+            xr_group.setVisible(enable);
+            screen_group.setVisible(!enable);
         },
 
         addElem: addElem,
