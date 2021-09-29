@@ -118,7 +118,9 @@ export async function initXR(ctx) {
             disableTeleportation: true
         });
 
-        //I would like to take this moment to apologize.
+
+        //This did not work as hoped
+        /*
         BABYLON.WebXRExperienceHelper.prototype.enableSpectatorMode = function() {
             if (!this._spectatorMode) {
                 const updateSpectatorCamera = () => {
@@ -149,7 +151,7 @@ export async function initXR(ctx) {
                 onStateChanged();
             }
         }
-        xrHelper.baseExperience.enableSpectatorMode();
+        xrHelper.baseExperience.enableSpectatorMode();*/
 
         //Teleporation is broken
         //xrHelper.teleportation.detach();
